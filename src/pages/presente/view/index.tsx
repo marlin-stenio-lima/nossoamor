@@ -65,6 +65,7 @@ export default function PresenteView() {
                     newspaperTitle: dbData.newspaper_title || prev.newspaperTitle,
                     anniversary: dbData.anniversary ? dbData.anniversary.split('-').reverse().join('/') : prev.anniversary,
                     meetDate: dbData.anniversary ? dbData.anniversary.split('-').reverse().join('/') : prev.meetDate,
+                    meetLocation: dbData.meet_location || prev.meetLocation,
                     photos: dbData.photos?.length > 0 ? dbData.photos : prev.photos,
                     aiStory: dbData.ai_story || prev.aiStory,
                     youtubeLink: dbData.youtube_link || prev.youtubeLink,
@@ -254,65 +255,78 @@ export default function PresenteView() {
     return (
         <ErrorBoundary>
         <div className="min-h-screen bg-[#faf8f5] font-serif text-gray-800 pb-20">
-            {/* New Hero Section: Nossa Jornada do Amor */}
-            <header className="pt-16 pb-24 px-4 text-center bg-[#f4a1bb] text-white relative overflow-hidden font-sans">
-                <div className="relative z-10 max-w-md mx-auto">
-                    <h1 className="text-3xl font-extrabold text-pink-600 mb-2 font-serif tracking-tight">Nossa jornada do amor</h1>
-                    <p className="text-pink-500 font-bold mb-6 text-sm tracking-wide">há quanto tempo estamos juntos?</p>
-                    
-                    <Heart className="mx-auto text-pink-600 fill-pink-600 mb-8 h-8 w-8 animate-pulse" />
 
-                    <div className="w-48 h-48 rounded-full border-4 border-pink-300 shadow-xl overflow-hidden mx-auto mb-10 relative">
-                        <img src={coupleData.photos[0]} alt="Casal" className="w-full h-full object-cover" />
+            {/* Hero Romântico */}
+            <header className="relative overflow-hidden font-sans" style={{ background: 'linear-gradient(160deg, #ff6b9d 0%, #c44dd8 50%, #7b2ff7 100%)' }}>
+                {/* Floating hearts background */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    {['top-8 left-6', 'top-20 right-12', 'bottom-32 left-16', 'bottom-16 right-8', 'top-40 left-1/3'].map((pos, i) => (
+                        <Heart key={i} className={`absolute text-white/10 fill-white/10 ${pos}`} size={i % 2 === 0 ? 48 : 32} style={{ animation: `pulse ${2 + i * 0.5}s infinite` }} />
+                    ))}
+                </div>
+
+                <div className="relative z-10 max-w-md mx-auto px-6 pt-16 pb-28 text-center">
+                    {/* Badge */}
+                    <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-4 py-1.5 mb-6">
+                        <Heart className="h-3 w-3 fill-white text-white" />
+                        <span className="text-white/90 text-xs font-bold uppercase tracking-widest">Presente Especial</span>
                     </div>
 
-                    <div className="space-y-4">
-                        {/* Box 1: Anos, Meses, Dias */}
-                        <div className="bg-white rounded-2xl p-4 shadow-lg text-pink-600 flex justify-center items-center gap-4">
-                            <div className="flex flex-col items-center min-w-[60px]">
-                                <span className="text-4xl font-black">{timeElapsed.years}</span>
-                                <span className="text-xs font-bold uppercase tracking-wider">Anos</span>
-                            </div>
-                            <span className="text-2xl font-bold pb-4">:</span>
-                            <div className="flex flex-col items-center min-w-[60px]">
-                                <span className="text-4xl font-black">{timeElapsed.months}</span>
-                                <span className="text-xs font-bold uppercase tracking-wider">Meses</span>
-                            </div>
-                            <span className="text-2xl font-bold pb-4">:</span>
-                            <div className="flex flex-col items-center min-w-[60px]">
-                                <span className="text-4xl font-black">{timeElapsed.days}</span>
-                                <span className="text-xs font-bold uppercase tracking-wider">Dias</span>
-                            </div>
-                        </div>
+                    <h1 className="text-4xl font-black text-white mb-1 leading-tight drop-shadow-lg" style={{ fontFamily: '"Times New Roman", serif' }}>
+                        Nossa Jornada
+                    </h1>
+                    <p className="text-white/80 text-sm font-medium mb-8 tracking-wide">de amor e cumplicidade</p>
 
-                        {/* Box 2: Horas, Minutos, Segundos */}
-                        <div className="bg-white rounded-2xl p-4 shadow-lg text-pink-600 flex justify-center items-center gap-4">
-                            <div className="flex flex-col items-center min-w-[60px]">
-                                <span className="text-4xl font-black">{timeElapsed.hours}</span>
-                                <span className="text-xs font-bold uppercase tracking-wider">Horas</span>
-                            </div>
-                            <span className="text-2xl font-bold pb-4">:</span>
-                            <div className="flex flex-col items-center min-w-[60px]">
-                                <span className="text-4xl font-black">{timeElapsed.minutes}</span>
-                                <span className="text-xs font-bold uppercase tracking-wider">Minutos</span>
-                            </div>
-                            <span className="text-2xl font-bold pb-4">:</span>
-                            <div className="flex flex-col items-center min-w-[60px]">
-                                <span className="text-4xl font-black">{timeElapsed.seconds}</span>
-                                <span className="text-xs font-bold uppercase tracking-wider">Segundos</span>
-                            </div>
+                    {/* Couple Photo */}
+                    <div className="relative inline-block mb-8">
+                        <div className="w-44 h-44 rounded-full border-4 border-white shadow-2xl overflow-hidden mx-auto">
+                            <img src={coupleData.photos[0]} alt="Casal" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-2 shadow-lg">
+                            <Heart className="h-5 w-5 fill-rose-500 text-rose-500 animate-pulse" />
                         </div>
                     </div>
 
-                    <p className="mt-8 text-pink-600 font-bold tracking-wide text-sm">
-                        ❤️ Eu te amo todo esse tempo ❤️
+                    {/* Names */}
+                    <p className="text-white font-bold text-xl mb-6 drop-shadow" style={{ fontFamily: '"Times New Roman", serif' }}>
+                        {coupleData.name1} &amp; {coupleData.name2}
+                    </p>
+
+                    {/* Timer Cards */}
+                    <div className="space-y-3">
+                        <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-4 flex justify-center items-center gap-5">
+                            {[{ val: timeElapsed.years, label: 'Anos' }, { val: timeElapsed.months, label: 'Meses' }, { val: timeElapsed.days, label: 'Dias' }].map((item, i) => (
+                                <div key={i} className="flex items-center gap-5">
+                                    {i > 0 && <span className="text-white/50 text-2xl font-bold -mt-4">:</span>}
+                                    <div className="flex flex-col items-center min-w-[52px]">
+                                        <span className="text-4xl font-black text-white drop-shadow">{item.val}</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">{item.label}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-4 flex justify-center items-center gap-5">
+                            {[{ val: timeElapsed.hours, label: 'Horas' }, { val: timeElapsed.minutes, label: 'Minutos' }, { val: timeElapsed.seconds, label: 'Segundos' }].map((item, i) => (
+                                <div key={i} className="flex items-center gap-5">
+                                    {i > 0 && <span className="text-white/50 text-2xl font-bold -mt-4">:</span>}
+                                    <div className="flex flex-col items-center min-w-[52px]">
+                                        <span className="text-4xl font-black text-white drop-shadow">{item.val}</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">{item.label}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <p className="mt-6 text-white/80 text-sm font-medium italic">
+                        ✨ Cada segundo ao seu lado é um presente ✨
                     </p>
                 </div>
-                
-                {/* Curved bottom edge */}
+
+                {/* Curved bottom */}
                 <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]">
-                    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[60px]">
-                        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,120.2,192.39,107.74C236.72,98.89,280.4,80.7,321.39,56.44Z" className="fill-[#faf8f5]"></path>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" className="block w-full h-[50px]">
+                        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,120.2,192.39,107.74Z" fill="#faf8f5"></path>
                     </svg>
                 </div>
             </header>
@@ -328,13 +342,13 @@ export default function PresenteView() {
                         {/* Header */}
                         <div className="border-b-[6px] border-double border-gray-900 pb-2 mb-3 text-center relative z-10">
                             <h2 className="text-5xl md:text-7xl font-bold text-gray-900 tracking-tighter uppercase" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
-                                CASAL DO ANO
+                                {coupleData.newspaperTitle || 'CASAL DO ANO'}
                             </h2>
                         </div>
                         
                         {/* Sub-header info row */}
                         <div className="flex justify-between items-center text-[10px] md:text-sm font-bold uppercase tracking-widest text-gray-800 border-b-2 border-gray-900 pb-2 mb-6 relative z-10" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
-                            <span>15 de abril</span>
+                            <span>{coupleData.anniversary || '...'}</span>
                             <span className="w-1.5 h-1.5 bg-gray-900 rounded-full"></span>
                             <span>{coupleData.name1} e {coupleData.name2}</span>
                             <span className="w-1.5 h-1.5 bg-gray-900 rounded-full"></span>

@@ -35,6 +35,7 @@ export default function DashboardHome() {
     const [names, setNames] = useState(saved.names || '');
     const [newspaperTitle, setNewspaperTitle] = useState(saved.newspaperTitle || '');
     const [anniversary, setAnniversary] = useState(saved.anniversary || '');
+    const [meetLocation, setMeetLocation] = useState(saved.meetLocation || '');
     const [linkCopied, setLinkCopied] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -59,6 +60,7 @@ export default function DashboardHome() {
                 if (data.ai_story) setLoveLetter(data.ai_story);
                 if (data.youtube_link) setYoutubeLink(data.youtube_link);
                 if (data.password) setPassword(data.password);
+                if (data.meet_location) setMeetLocation(data.meet_location);
             }
         };
         loadFromSupabase();
@@ -205,7 +207,8 @@ export default function DashboardHome() {
                 anniversary: anniversary,
                 photos: photoPreviews,
                 ai_story: loveLetter,
-                youtube_link: youtubeLink
+                youtube_link: youtubeLink,
+                meet_location: meetLocation
             };
 
             const { error } = await supabase
@@ -369,6 +372,16 @@ export default function DashboardHome() {
                                     value={newspaperTitle}
                                     onChange={(e) => setNewspaperTitle(e.target.value)}
                                     placeholder="Ex: CASAL DO ANO" 
+                                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" 
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Local do Primeiro Encontro 📍</label>
+                                <input 
+                                    type="text" 
+                                    value={meetLocation}
+                                    onChange={(e) => setMeetLocation(e.target.value)}
+                                    placeholder="Ex: Padaria da Esquina, Parque das Flores..." 
                                     className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" 
                                 />
                             </div>
