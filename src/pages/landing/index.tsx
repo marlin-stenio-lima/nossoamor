@@ -1,8 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Heart, Camera, BookOpen, QrCode, Lock, Wand2, ArrowRight, Check, Timer, AlertCircle } from 'lucide-react';
+import { useEffect } from 'react';
+import { Pixel } from '../../utils/pixel';
 
 export default function LandingPage() {
     const navigate = useNavigate();
+
+    useEffect(() => {
+        Pixel.track('PageView');
+    }, []);
 
     return (
         <div className="min-h-screen bg-rose-50 font-sans text-gray-900 selection:bg-rose-200 selection:text-rose-900">
