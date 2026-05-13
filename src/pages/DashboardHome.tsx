@@ -75,7 +75,8 @@ export default function DashboardHome() {
             password,
             names,
             newspaperTitle,
-            anniversary
+            anniversary,
+            meetLocation
         };
         try {
             localStorage.setItem('nossoAmorData', JSON.stringify(dataToSave));
@@ -211,12 +212,37 @@ export default function DashboardHome() {
                 meet_location: meetLocation
             };
 
-            const { error } = await supabase
-                .from('couple_gifts')
-                .upsert(data, { onConflict: 'password' });
+            let saveError = null;
 
-            if (error) {
-                console.error("Erro ao salvar no Supabase:", error);
+            if (user?.email) {
+                // Check if record exists for this email
+                const { data: existing } = await supabase
+                    .from('couple_gifts')
+                    .select('id')
+                    .eq('user_email', user.email)
+                    .single();
+
+                if (existing?.id) {
+                    const { error } = await supabase
+                        .from('couple_gifts')
+                        .update(data)
+                        .eq('id', existing.id);
+                    saveError = error;
+                } else {
+                    const { error } = await supabase
+                        .from('couple_gifts')
+                        .insert(data);
+                    saveError = error;
+                }
+            } else {
+                const { error } = await supabase
+                    .from('couple_gifts')
+                    .upsert(data, { onConflict: 'password' });
+                saveError = error;
+            }
+
+            if (saveError) {
+                console.error("Erro ao salvar no Supabase:", saveError);
                 alert("Erro ao salvar no banco de dados. Tente novamente.");
             } else {
                 setStep(4);
@@ -237,18 +263,35 @@ export default function DashboardHome() {
     };
 
     const handleDownloadQR = () => {
-        const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
-        if (canvas) {
-            const pngUrl = canvas
-                .toDataURL("image/png")
-                .replace("image/png", "image/octet-stream");
-            let downloadLink = document.createElement("a");
-            downloadLink.href = pngUrl;
-            downloadLink.download = "Presente-Nosso-Amor-QR.png";
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-        }
+        // Works on mobile: convert SVG to canvas then download as PNG
+        const svg = document.getElementById('qr-code-svg') as SVGSVGElement;
+        if (!svg) return;
+
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement('canvas');
+        canvas.width = 400;
+        canvas.height = 400;
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+
+        img.onload = () => {
+            if (ctx) {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 400, 400);
+                ctx.drawImage(img, 20, 20, 360, 360);
+            }
+            URL.revokeObjectURL(url);
+            const pngUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = pngUrl;
+            link.download = 'QRCode-NossoAmor.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+        img.src = url;
     };
 
     useEffect(() => {
