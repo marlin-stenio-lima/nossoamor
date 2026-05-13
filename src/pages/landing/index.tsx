@@ -32,12 +32,13 @@ export default function LandingPage() {
                         <a href="#emotion" className="hover:text-rose-600 transition-colors">O Impacto</a>
                         <a href="#pricing" className="hover:text-rose-600 transition-colors">Garantir Agora</a>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button onClick={() => navigate('/login')} className="hidden md:flex items-center justify-center text-sm font-bold text-gray-600 hover:text-rose-600 hover:bg-rose-50 px-4 py-2 rounded-full transition-all border border-transparent">
-                            Já tenho conta
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => navigate('/login')} className="flex items-center justify-center text-sm font-bold text-gray-600 hover:text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-full transition-all border border-gray-200">
+                            Entrar
                         </button>
-                        <button onClick={() => navigate('/checkout')} className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:from-rose-600 hover:to-pink-600 transition-all shadow-md shadow-rose-200 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 border border-rose-400/20">
-                            Criar Presente
+                        <button onClick={() => navigate('/checkout')} className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-4 md:px-6 py-2.5 rounded-full text-sm font-bold hover:from-rose-600 hover:to-pink-600 transition-all shadow-md shadow-rose-200 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 border border-rose-400/20">
+                            <span className="hidden md:inline">Criar Presente</span>
+                            <span className="md:hidden">Criar</span>
                         </button>
                     </div>
                 </div>
