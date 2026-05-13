@@ -3,10 +3,12 @@ import { Heart, Camera, BookOpen, QrCode, Lock, ArrowRight, CheckCircle2, Sparkl
 import { useNavigate, useLocation } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function DashboardHome() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { user } = useAuth();
     
     // Initialize state from localStorage to prevent wipe on first render
     const getSavedData = () => {
@@ -38,7 +40,29 @@ export default function DashboardHome() {
     const [isSaving, setIsSaving] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Removed load useEffect since we initialize state synchronously
+    // Load existing gift from Supabase on mount (so data persists across browsers)
+    useEffect(() => {
+        const loadFromSupabase = async () => {
+            if (!user?.email) return;
+            const { data, error } = await supabase
+                .from('couple_gifts')
+                .select('*')
+                .eq('user_email', user.email)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single();
+            if (data && !error) {
+                if (data.names) setNames(data.names);
+                if (data.newspaper_title) setNewspaperTitle(data.newspaper_title);
+                if (data.anniversary) setAnniversary(data.anniversary);
+                if (data.photos?.length > 0) setPhotoPreviews(data.photos);
+                if (data.ai_story) setLoveLetter(data.ai_story);
+                if (data.youtube_link) setYoutubeLink(data.youtube_link);
+                if (data.password) setPassword(data.password);
+            }
+        };
+        loadFromSupabase();
+    }, [user?.email]);
 
     // Save to localStorage whenever data changes
     useEffect(() => {
@@ -174,6 +198,7 @@ export default function DashboardHome() {
             }
 
             const data = {
+                user_email: user?.email,
                 password: password,
                 names: names,
                 newspaper_title: newspaperTitle,
