@@ -36,7 +36,7 @@ export default function PresenteView() {
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         const fetchGift = async () => {
-            let dbData = null;
+            let dbData: any = null;
 
             // Fetch from database if we have a real ID
             if (id && id !== 'demo') {

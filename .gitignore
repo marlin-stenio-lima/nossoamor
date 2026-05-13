@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 
 .env
+
+output
+red*
+questoes*
+.venv
+.temp_ag_kit
