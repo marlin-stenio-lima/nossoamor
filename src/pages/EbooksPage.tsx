@@ -47,7 +47,7 @@ export default function EbooksPage() {
     return (
         <div className="p-4 lg:p-8 max-w-5xl mx-auto font-sans">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2 font-serif italic text-rose-600">Meus E-books</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Meus E-books</h1>
                 <p className="text-gray-500">Baixe os bônus exclusivos que você adquiriu na sua compra.</p>
             </div>
 

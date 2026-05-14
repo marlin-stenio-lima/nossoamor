@@ -36,6 +36,7 @@ export default function Checkout() {
 
     const [step, setStep] = useState<'form' | 'upsell' | 'payment'>('form');
     const [selectedUpsells, setSelectedUpsells] = useState<number[]>([]);
+    const [initialUpsells, setInitialUpsells] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({ name: '', email: '', cellphone: '', cpf: '' });
@@ -55,21 +56,22 @@ export default function Checkout() {
 
 
 
-    const createCharge = async () => {
+    const createCharge = async (upsellsToUse?: number[]) => {
         setLoading(true);
         setError('');
 
         try {
+            const finalUpsells = upsellsToUse || selectedUpsells;
             const cleanCpf = formData.cpf.replace(/\D/g, '');
             if (cleanCpf.length !== 11) throw new Error("CPF inválido: Digite os 11 números");
 
-            const upsellTotal = selectedUpsells.reduce((acc, id) => {
+            const upsellTotal = finalUpsells.reduce((acc, id) => {
                 const prod = UPSELL_PRODUCTS.find(p => p.id === id);
                 return acc + (prod ? prod.price : 0);
             }, 0);
             
             const totalAmount = PLANS[plan].price + upsellTotal;
-            const upsellNames = selectedUpsells.map(id => UPSELL_PRODUCTS.find(p => p.id === id)?.name).join(', ');
+            const upsellNames = finalUpsells.map(id => UPSELL_PRODUCTS.find(p => p.id === id)?.name).join(', ');
             const description = `Assinatura ${PLANS[plan].name}${upsellNames ? ' + ' + upsellNames : ''}`;
 
             console.log("Submitting charge for plan:", plan, "Total:", totalAmount);
@@ -110,7 +112,13 @@ export default function Checkout() {
             return;
         }
         setError('');
+        setInitialUpsells([...selectedUpsells]);
         setStep('upsell');
+    };
+
+    const handleDeclineUpsell = () => {
+        setSelectedUpsells(initialUpsells);
+        setTimeout(() => createCharge(initialUpsells), 50);
     };
 
 
@@ -180,27 +188,6 @@ export default function Checkout() {
 
 
             <div className="w-full max-w-lg relative z-0">
-                {/* Product Summary Card */}
-                <div className="bg-rose-50 rounded-xl border border-rose-200 overflow-hidden mb-4 shadow-sm">
-                    <div className="p-6">
-                        <h3 className="text-gray-900 font-bold text-lg mb-1">{PLANS[plan].name}</h3>
-                        <p className="text-rose-700 text-sm mb-4">Acesso vitalício à página do casal</p>
-
-                        <div className="space-y-2 mb-6">
-                            {PLANS[plan].features.map((feat, i) => (
-                                <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
-                                    <Check className="h-4 w-4 text-rose-500" />
-                                    {feat}
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="flex justify-between items-center pt-4 border-t border-rose-200">
-                            <span className="text-gray-500 text-sm">Você paga (Pagamento Único):</span>
-                            <span className="text-2xl font-bold text-rose-700">R$ {(PLANS[plan].price / 100).toFixed(2).replace('.', ',')}</span>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Checkout Form Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -254,12 +241,45 @@ export default function Checkout() {
                                     </div>
                                 </div>
 
+                                {/* Order Bump / Upsells directly in the checkout form */}
+                                <div className="mt-6 border-t border-gray-100 pt-6">
+                                    <h4 className="font-bold text-gray-900 text-sm mb-3">Adicione ao seu pacote:</h4>
+                                    <div className="space-y-3">
+                                        {UPSELL_PRODUCTS.map(product => {
+                                            const isSelected = selectedUpsells.includes(product.id);
+                                            return (
+                                                <div 
+                                                    key={product.id}
+                                                    onClick={() => {
+                                                        if (isSelected) {
+                                                            setSelectedUpsells(prev => prev.filter(id => id !== product.id));
+                                                        } else {
+                                                            setSelectedUpsells(prev => [...prev, product.id]);
+                                                        }
+                                                    }}
+                                                    className={`border rounded-xl p-3 cursor-pointer transition-all flex items-center justify-between ${isSelected ? 'border-rose-500 bg-rose-50 shadow-sm' : 'border-gray-200 hover:border-rose-300 hover:bg-gray-50'}`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-5 h-5 flex-shrink-0 rounded flex items-center justify-center ${isSelected ? 'bg-rose-500 border-rose-500' : 'border border-gray-300'}`}>
+                                                            {isSelected && <Check className="w-3 h-3 text-white" />}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-800 text-sm">{product.name}</p>
+                                                            <p className="text-xs text-green-600 font-bold">+ R$ {(product.price / 100).toFixed(2).replace('.', ',')}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
                                 {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100 text-center">{error}</p>}
 
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold text-lg py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 mt-4"
+                                    className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold text-lg py-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 mt-4 uppercase tracking-wide"
                                 >
                                     {loading ? <Loader2 className="animate-spin h-5 w-5" /> : (
                                         <>
@@ -268,16 +288,21 @@ export default function Checkout() {
                                         </>
                                     )}
                                 </button>
+                                <p className="text-center text-xs text-gray-500 mt-3 font-medium flex justify-center items-center gap-1"><Lock className="w-3 h-3"/> Pagamento Seguro e Criptografado</p>
                             </form>
                         ) : step === 'upsell' ? (
                             <div className="space-y-6 animate-in fade-in duration-500">
                                 <div className="text-center mb-6">
-                                    <h3 className="font-bold text-gray-900 text-xl">Potencialize seu Acesso!</h3>
-                                    <p className="text-gray-500 text-sm mt-1">Aproveite essas ofertas exclusivas com desconto especial apenas hoje.</p>
+                                    <span className="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">Espere!</span>
+                                    <h3 className="font-bold text-gray-900 text-2xl">Não feche essa página!</h3>
+                                    <p className="text-gray-600 text-sm mt-2">Adicione esses E-books exclusivos e potencialize ainda mais seu acesso. É a sua última chance de levar com esse desconto.</p>
                                 </div>
 
                                 <div className="space-y-3">
                                     {UPSELL_PRODUCTS.map(product => {
+                                        // Hide products already selected in the first step so we don't show duplicates to add
+                                        if (initialUpsells.includes(product.id)) return null;
+                                        
                                         const isSelected = selectedUpsells.includes(product.id);
                                         return (
                                             <div 
@@ -289,10 +314,10 @@ export default function Checkout() {
                                                         setSelectedUpsells(prev => [...prev, product.id]);
                                                     }
                                                 }}
-                                                className={`border rounded-xl p-4 cursor-pointer transition-all flex items-center justify-between ${isSelected ? 'border-rose-500 bg-rose-50 shadow-sm' : 'border-gray-200 hover:border-rose-300 hover:bg-gray-50'}`}
+                                                className={`border rounded-xl p-4 cursor-pointer transition-all flex items-center justify-between ${isSelected ? 'border-green-500 bg-green-50 shadow-sm' : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'}`}
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-6 h-6 flex-shrink-0 rounded-full border flex items-center justify-center ${isSelected ? 'bg-rose-500 border-rose-500' : 'border-gray-300'}`}>
+                                                    <div className={`w-6 h-6 flex-shrink-0 rounded-full border flex items-center justify-center ${isSelected ? 'bg-green-500 border-green-500' : 'border-gray-300'}`}>
                                                         {isSelected && <Check className="w-4 h-4 text-white" />}
                                                     </div>
                                                     <div>
@@ -305,26 +330,28 @@ export default function Checkout() {
                                     })}
                                 </div>
 
-                                <button
-                                    onClick={() => createCharge()}
-                                    disabled={loading}
-                                    className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold text-lg py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 mt-6"
-                                >
-                                    {loading ? <Loader2 className="animate-spin h-5 w-5" /> : (
-                                        <>
-                                            <QrCode className="h-5 w-5" />
-                                            Gerar PIX: R$ {((PLANS[plan].price + selectedUpsells.reduce((acc, id) => acc + (UPSELL_PRODUCTS.find(p => p.id === id)?.price || 0), 0)) / 100).toFixed(2).replace('.', ',')}
-                                        </>
-                                    )}
-                                </button>
-                                
-                                <button
-                                    onClick={() => setStep('form')}
-                                    disabled={loading}
-                                    className="w-full text-gray-500 text-sm py-2 hover:text-gray-700 font-medium transition-colors"
-                                >
-                                    Voltar
-                                </button>
+                                <div className="pt-4 space-y-3">
+                                    <button
+                                        onClick={() => createCharge()}
+                                        disabled={loading}
+                                        className="w-full bg-green-500 hover:bg-green-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-all flex flex-col items-center justify-center gap-1"
+                                    >
+                                        {loading ? <Loader2 className="animate-spin h-6 w-6" /> : (
+                                            <>
+                                                <span>SIM, QUERO ADICIONAR AO PEDIDO!</span>
+                                                <span className="text-xs font-medium opacity-90">Gerar PIX Atualizado: R$ {((PLANS[plan].price + selectedUpsells.reduce((acc, id) => acc + (UPSELL_PRODUCTS.find(p => p.id === id)?.price || 0), 0)) / 100).toFixed(2).replace('.', ',')}</span>
+                                            </>
+                                        )}
+                                    </button>
+                                    
+                                    <button
+                                        onClick={handleDeclineUpsell}
+                                        disabled={loading}
+                                        className="w-full text-gray-400 hover:text-gray-600 text-sm py-3 font-medium transition-colors underline"
+                                    >
+                                        Não, obrigado. Quero continuar apenas com o que já escolhi.
+                                    </button>
+                                </div>
                             </div>
                         ) : (
                             <div className="flex flex-col items-center pt-2 pb-6 animate-in fade-in zoom-in-95 duration-500">
