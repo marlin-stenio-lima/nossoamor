@@ -19,6 +19,14 @@ const PLANS = {
     }
 };
 
+const UPSELL_PRODUCTS = [
+    { id: 1, name: 'Vencendo a Ansiedade', price: 990 },
+    { id: 2, name: 'Vencendo a Depressão', price: 990 },
+    { id: 3, name: 'Você no Controle', price: 990 },
+    { id: 4, name: 'Superando la Ansiedad', price: 990 },
+    { id: 5, name: 'Desafio 24 Dias', price: 1990 }
+];
+
 export default function Checkout() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -26,7 +34,8 @@ export default function Checkout() {
 
     const [plan, setPlan] = useState<keyof typeof PLANS>('start');
 
-    const [step, setStep] = useState<'form' | 'payment'>('form');
+    const [step, setStep] = useState<'form' | 'upsell' | 'payment'>('form');
+    const [selectedUpsells, setSelectedUpsells] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({ name: '', email: '', cellphone: '', cpf: '' });
@@ -46,7 +55,7 @@ export default function Checkout() {
 
 
 
-    const createCharge = async (selectedPlan: keyof typeof PLANS) => {
+    const createCharge = async () => {
         setLoading(true);
         setError('');
 
@@ -54,7 +63,16 @@ export default function Checkout() {
             const cleanCpf = formData.cpf.replace(/\D/g, '');
             if (cleanCpf.length !== 11) throw new Error("CPF inválido: Digite os 11 números");
 
-            console.log("Submitting charge for plan:", selectedPlan);
+            const upsellTotal = selectedUpsells.reduce((acc, id) => {
+                const prod = UPSELL_PRODUCTS.find(p => p.id === id);
+                return acc + (prod ? prod.price : 0);
+            }, 0);
+            
+            const totalAmount = PLANS[plan].price + upsellTotal;
+            const upsellNames = selectedUpsells.map(id => UPSELL_PRODUCTS.find(p => p.id === id)?.name).join(', ');
+            const description = `Assinatura ${PLANS[plan].name}${upsellNames ? ' + ' + upsellNames : ''}`;
+
+            console.log("Submitting charge for plan:", plan, "Total:", totalAmount);
 
             const response = await AbacatePayService.createPixCharge({
                 customer: {
@@ -63,8 +81,8 @@ export default function Checkout() {
                     cellphone: formData.cellphone,
                     taxId: cleanCpf
                 },
-                amount: PLANS[selectedPlan].price,
-                description: `Assinatura ${PLANS[selectedPlan].name}`
+                amount: totalAmount,
+                description: description.substring(0, 255)
             });
 
             console.log("Charge Response:", response);
@@ -86,7 +104,13 @@ export default function Checkout() {
 
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        createCharge(plan);
+        const cleanCpf = formData.cpf.replace(/\D/g, '');
+        if (cleanCpf.length !== 11) {
+            setError("CPF inválido: Digite os 11 números");
+            return;
+        }
+        setError('');
+        setStep('upsell');
     };
 
 
@@ -102,6 +126,14 @@ export default function Checkout() {
                 if (status === 'PAID' || status === 'COMPLETED') {
                     clearInterval(interval);
 
+                    const upsellTotal = selectedUpsells.reduce((acc, id) => {
+                        const prod = UPSELL_PRODUCTS.find(p => p.id === id);
+                        return acc + (prod ? prod.price : 0);
+                    }, 0);
+                    const totalAmount = PLANS[plan].price + upsellTotal;
+                    const upsellNames = selectedUpsells.map(id => UPSELL_PRODUCTS.find(p => p.id === id)?.name).join(', ');
+                    const finalPlanName = `${PLANS[plan].name}${upsellNames ? ' + ' + upsellNames : ''}`;
+
                     // Send Welcome Email
                     fetch('/api/send-email', {
                         method: 'POST',
@@ -109,7 +141,7 @@ export default function Checkout() {
                         body: JSON.stringify({
                             email: formData.email,
                             name: formData.name,
-                            plan: PLANS[plan].name
+                            plan: finalPlanName
                         })
                     }).catch(err => console.error("Failed to send email:", err));
 
@@ -120,7 +152,7 @@ export default function Checkout() {
                             phone: formData.cellphone,
                             plan: plan,
                             status: 'active',
-                            purchase_price: PLANS[plan].price / 100,
+                            purchase_price: totalAmount / 100,
                             purchase_date: new Date().toISOString()
                         }, { onConflict: 'email' });
 
@@ -129,8 +161,8 @@ export default function Checkout() {
 
                         navigate('/thank-you', {
                             state: {
-                                purchase_price: PLANS[plan].price / 100,
-                                plan_name: PLANS[plan].name,
+                                purchase_price: totalAmount / 100,
+                                plan_name: finalPlanName,
                                 transaction_id: billingId
                             }
                         });
@@ -141,7 +173,7 @@ export default function Checkout() {
             }
         }, 3000);
         return () => clearInterval(interval);
-    }, [step, billingId, navigate, formData, plan]);
+    }, [step, billingId, navigate, formData, plan, selectedUpsells]);
 
     return (
         <div className="min-h-screen bg-[#f0f2f5] font-sans text-gray-900 flex flex-col items-center justify-center py-12 px-4 relative">
@@ -237,6 +269,63 @@ export default function Checkout() {
                                     )}
                                 </button>
                             </form>
+                        ) : step === 'upsell' ? (
+                            <div className="space-y-6 animate-in fade-in duration-500">
+                                <div className="text-center mb-6">
+                                    <h3 className="font-bold text-gray-900 text-xl">Potencialize seu Acesso!</h3>
+                                    <p className="text-gray-500 text-sm mt-1">Aproveite essas ofertas exclusivas com desconto especial apenas hoje.</p>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {UPSELL_PRODUCTS.map(product => {
+                                        const isSelected = selectedUpsells.includes(product.id);
+                                        return (
+                                            <div 
+                                                key={product.id}
+                                                onClick={() => {
+                                                    if (isSelected) {
+                                                        setSelectedUpsells(prev => prev.filter(id => id !== product.id));
+                                                    } else {
+                                                        setSelectedUpsells(prev => [...prev, product.id]);
+                                                    }
+                                                }}
+                                                className={`border rounded-xl p-4 cursor-pointer transition-all flex items-center justify-between ${isSelected ? 'border-rose-500 bg-rose-50 shadow-sm' : 'border-gray-200 hover:border-rose-300 hover:bg-gray-50'}`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-6 h-6 flex-shrink-0 rounded-full border flex items-center justify-center ${isSelected ? 'bg-rose-500 border-rose-500' : 'border-gray-300'}`}>
+                                                        {isSelected && <Check className="w-4 h-4 text-white" />}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-gray-900 text-sm">{product.name}</p>
+                                                        <p className="text-xs text-green-600 font-bold">+ R$ {(product.price / 100).toFixed(2).replace('.', ',')}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <button
+                                    onClick={() => createCharge()}
+                                    disabled={loading}
+                                    className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold text-lg py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 mt-6"
+                                >
+                                    {loading ? <Loader2 className="animate-spin h-5 w-5" /> : (
+                                        <>
+                                            <QrCode className="h-5 w-5" />
+                                            Gerar PIX: R$ {((PLANS[plan].price + selectedUpsells.reduce((acc, id) => acc + (UPSELL_PRODUCTS.find(p => p.id === id)?.price || 0), 0)) / 100).toFixed(2).replace('.', ',')}
+                                        </>
+                                    )}
+                                </button>
+                                
+                                <button
+                                    onClick={() => setStep('form')}
+                                    disabled={loading}
+                                    className="w-full text-gray-500 text-sm py-2 hover:text-gray-700 font-medium transition-colors"
+                                >
+                                    Voltar
+                                </button>
+                            </div>
                         ) : (
                             <div className="flex flex-col items-center pt-2 pb-6 animate-in fade-in zoom-in-95 duration-500">
                                 <div className="text-center mb-6">
