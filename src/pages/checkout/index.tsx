@@ -189,6 +189,28 @@ export default function Checkout() {
 
             <div className="w-full max-w-lg relative z-0">
 
+                {/* Product Summary Card */}
+                <div className="bg-rose-50 rounded-xl border border-rose-200 overflow-hidden mb-4 shadow-sm">
+                    <div className="p-6">
+                        <h3 className="text-gray-900 font-bold text-lg mb-1">{PLANS[plan].name}</h3>
+                        <p className="text-rose-700 text-sm mb-4">Acesso vitalício à página do casal</p>
+
+                        <div className="space-y-2 mb-6">
+                            {PLANS[plan].features.map((feat, i) => (
+                                <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                                    <Check className="h-4 w-4 text-rose-500" />
+                                    {feat}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex justify-between items-center pt-4 border-t border-rose-200">
+                            <span className="text-gray-500 text-sm">Você paga (Pagamento Único):</span>
+                            <span className="text-2xl font-bold text-rose-700">R$ {(PLANS[plan].price / 100).toFixed(2).replace('.', ',')}</span>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Checkout Form Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div className="p-8">
@@ -241,6 +263,19 @@ export default function Checkout() {
                                     </div>
                                 </div>
 
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4 uppercase tracking-wide"
+                                >
+                                    {loading ? <Loader2 className="animate-spin h-5 w-5" /> : (
+                                        <>
+                                            <QrCode className="h-5 w-5" />
+                                            Gerar QR Code PIX
+                                        </>
+                                    )}
+                                </button>
+
                                 {/* Order Bump / Upsells directly in the checkout form */}
                                 <div className="mt-6 border-t border-gray-100 pt-6">
                                     <h4 className="font-bold text-gray-900 text-sm mb-3">Adicione ao seu pacote:</h4>
@@ -279,7 +314,7 @@ export default function Checkout() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold text-lg py-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 mt-4 uppercase tracking-wide"
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4 uppercase tracking-wide"
                                 >
                                     {loading ? <Loader2 className="animate-spin h-5 w-5" /> : (
                                         <>
