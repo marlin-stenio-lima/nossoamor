@@ -396,7 +396,11 @@ export default function Checkout() {
                                     </button>
                                 </div>
                             </div>
+                            </div>
+                            </div>
                         ) : (
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="p-8">
                             <div className="flex flex-col items-center pt-2 pb-6 animate-in fade-in zoom-in-95 duration-500">
                                 <div className="text-center mb-6">
                                     <h3 className="font-bold text-gray-900 text-xl">Escaneie o QR Code</h3>
@@ -435,10 +439,10 @@ export default function Checkout() {
                                         {copied ? 'Copiado!' : 'Copiar Código PIX'}
                                     </button>
                                 </div>
+                                </div>
+                                </div>
                             </div>
                         )}
-                    </div>
-                </div>
 
                 <div className="mt-8 text-center space-y-2">
                     <p className="text-gray-400 text-xs flex items-center justify-center gap-1">
