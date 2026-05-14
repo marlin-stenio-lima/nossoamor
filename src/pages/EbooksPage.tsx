@@ -1,29 +1,34 @@
 import { Lock, Download, BookOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const EBOOKS = [
     { 
         id: 1, 
         name: 'Vencendo Ansiedade e Estresse', 
         fileName: 'ansiedade.pdf',
-        description: 'Técnicas simples para superar a ansiedade e o estresse.'
+        description: 'Técnicas simples para superar a ansiedade e o estresse.',
+        planId: 'ansiedade'
     },
     { 
         id: 2, 
         name: 'Você no Controle', 
         fileName: 'controle.pdf',
-        description: 'Adeus ejaculação precoce. E-book completo.'
+        description: 'Adeus ejaculação precoce. E-book completo.',
+        planId: 'controle'
     },
     { 
         id: 3, 
         name: 'Dieta 24 Dias', 
         fileName: 'desafio24.pdf',
-        description: 'Emagreça em 24 dias com nosso método comprovado.'
+        description: 'Emagreça em 24 dias com nosso método comprovado.',
+        planId: 'dieta'
     }
 ];
 
 export default function EbooksPage() {
     const { user } = useAuth();
+    const navigate = useNavigate();
     
     // Verifica se o usuário tem acesso baseado no plano (que contém os nomes dos upsells) ou se é admin
     const hasEbook = (name: string) => {
@@ -79,11 +84,11 @@ export default function EbooksPage() {
                                 </a>
                             ) : (
                                 <button 
-                                    disabled
-                                    className="w-full py-2.5 bg-gray-200 text-gray-500 rounded-lg flex items-center justify-center gap-2 font-semibold text-sm cursor-not-allowed"
+                                    onClick={() => navigate(`/checkout?plan=${ebook.planId}`)}
+                                    className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center justify-center gap-2 font-semibold text-sm cursor-pointer shadow-sm transition-all"
                                 >
-                                    <Lock className="w-4 h-4" />
-                                    Bloqueado
+                                    <Lock className="w-4 h-4 opacity-70" />
+                                    Comprar por R$ 9,90
                                 </button>
                             )}
                         </div>

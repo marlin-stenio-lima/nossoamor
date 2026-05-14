@@ -16,6 +16,24 @@ const PLANS = {
             'PDF do QR Code para impressão',
             'Proteção da página com senha (Data)'
         ]
+    },
+    ansiedade: {
+        price: 990,
+        name: 'Vencendo Ansiedade e Estresse',
+        id: 'ansiedade',
+        features: ['Acesso imediato ao PDF', 'Leitura rápida e prática']
+    },
+    controle: {
+        price: 990,
+        name: 'Você no Controle - Adeus Ejaculação Precoce',
+        id: 'controle',
+        features: ['Acesso imediato ao PDF', 'Método prático']
+    },
+    dieta: {
+        price: 990,
+        name: 'Dieta 24 Dias',
+        id: 'dieta',
+        features: ['Acesso imediato ao PDF', 'Cronograma de 24 dias']
     }
 };
 
@@ -30,14 +48,25 @@ export default function Checkout() {
     const [searchParams] = useSearchParams();
     const planParam = searchParams.get('plan') as keyof typeof PLANS;
 
-    const [plan, setPlan] = useState<keyof typeof PLANS>('start');
+    const [plan, setPlan] = useState<keyof typeof PLANS>(planParam && PLANS[planParam] ? planParam : 'start');
 
     const [step, setStep] = useState<'form' | 'upsell' | 'payment'>('form');
     const [selectedUpsells, setSelectedUpsells] = useState<number[]>([]);
     const [initialUpsells, setInitialUpsells] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [formData, setFormData] = useState({ name: '', email: '', cellphone: '', cpf: '' });
+    
+    // Auto-fill from logged-in user if available
+    const [formData, setFormData] = useState(() => {
+        try {
+            const userStr = localStorage.getItem('enem_pro_user');
+            if (userStr) {
+                const u = JSON.parse(userStr);
+                return { name: u.name || '', email: u.email || '', cellphone: '', cpf: '' };
+            }
+        } catch (e) {}
+        return { name: '', email: '', cellphone: '', cpf: '' };
+    });
 
     useEffect(() => {
         Pixel.track('InitiateCheckout', {
@@ -110,8 +139,13 @@ export default function Checkout() {
             return;
         }
         setError('');
-        setInitialUpsells([...selectedUpsells]);
-        setStep('upsell');
+        
+        if (plan !== 'start') {
+            createCharge();
+        } else {
+            setInitialUpsells([...selectedUpsells]);
+            setStep('upsell');
+        }
     };
 
     const handleDeclineUpsell = () => {
@@ -152,17 +186,32 @@ export default function Checkout() {
                     }).catch(err => console.error("Failed to send email:", err));
 
                     import('../../lib/supabase').then(async ({ supabase }) => {
+                        const { data: existingUser } = await supabase.from('saas_leads').select('plan, purchase_price').eq('email', formData.email).single();
+                        
+                        let updatedPlanName = existingUser?.plan || '';
+                        if (!updatedPlanName.includes(PLANS[plan].name)) {
+                            updatedPlanName += (updatedPlanName ? ' + ' : '') + PLANS[plan].name;
+                        }
+                        selectedUpsells.forEach(id => {
+                            const pName = UPSELL_PRODUCTS.find(p => p.id === id)?.name;
+                            if (pName && !updatedPlanName.includes(pName)) {
+                                updatedPlanName += ' + ' + pName;
+                            }
+                        });
+                        
+                        const newTotalSpent = (existingUser?.purchase_price || 0) + (totalAmount / 100);
+
                         await supabase.from('saas_leads').upsert({
                             email: formData.email,
                             name: formData.name,
                             phone: formData.cellphone,
-                            plan: finalPlanName,
+                            plan: updatedPlanName,
                             status: 'active',
-                            purchase_price: totalAmount / 100,
+                            purchase_price: newTotalSpent,
                             purchase_date: new Date().toISOString()
                         }, { onConflict: 'email' });
 
-                        const user = { email: formData.email, name: formData.name, plan: finalPlanName, role: 'user' };
+                        const user = { email: formData.email, name: formData.name, plan: updatedPlanName, role: 'user' };
                         localStorage.setItem('enem_pro_user', JSON.stringify(user));
 
                         navigate('/thank-you', {
