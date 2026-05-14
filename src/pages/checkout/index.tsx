@@ -20,11 +20,9 @@ const PLANS = {
 };
 
 const UPSELL_PRODUCTS = [
-    { id: 1, name: 'Vencendo a Ansiedade', price: 990 },
-    { id: 2, name: 'Vencendo a Depressão', price: 990 },
-    { id: 3, name: 'Você no Controle', price: 990 },
-    { id: 4, name: 'Superando la Ansiedad', price: 990 },
-    { id: 5, name: 'Desafio 24 Dias', price: 1990 }
+    { id: 1, name: 'Vencendo Ansiedade e Estresse', price: 990 },
+    { id: 2, name: 'Você no Controle - Adeus Ejaculação Precoce', price: 990 },
+    { id: 3, name: 'Dieta 24 Dias', price: 990 }
 ];
 
 export default function Checkout() {
