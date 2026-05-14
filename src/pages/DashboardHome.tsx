@@ -12,7 +12,15 @@ export default function DashboardHome() {
     
     // Initialize state from localStorage to prevent wipe on first render
     const getSavedData = () => {
-        const savedData = localStorage.getItem('nossoAmorData');
+        let email = user?.email;
+        if (!email) {
+            const userStr = localStorage.getItem('enem_pro_user');
+            if (userStr) {
+                try { email = JSON.parse(userStr).email; } catch (e) {}
+            }
+        }
+        if (!email) return {};
+        const savedData = localStorage.getItem(`nossoAmorData_${email}`);
         if (savedData) {
             try {
                 return JSON.parse(savedData);
@@ -79,11 +87,20 @@ export default function DashboardHome() {
             meetLocation
         };
         try {
-            localStorage.setItem('nossoAmorData', JSON.stringify(dataToSave));
+            let email = user?.email;
+            if (!email) {
+                const userStr = localStorage.getItem('enem_pro_user');
+                if (userStr) {
+                    try { email = JSON.parse(userStr).email; } catch (e) {}
+                }
+            }
+            if (email) {
+                localStorage.setItem(`nossoAmorData_${email}`, JSON.stringify(dataToSave));
+            }
         } catch (e) {
             console.error("Local storage quota exceeded. Could not save all data.");
         }
-    }, [photoPreviews, loveLetter, youtubeLink, password, names, newspaperTitle, anniversary]);
+    }, [photoPreviews, loveLetter, youtubeLink, password, names, newspaperTitle, anniversary, user?.email]);
 
     const compressImage = (file: File): Promise<string> => {
         return new Promise((resolve) => {
