@@ -4,31 +4,19 @@ import { useAuth } from '../contexts/AuthContext';
 const EBOOKS = [
     { 
         id: 1, 
-        name: 'Vencendo a Ansiedade', 
+        name: 'Vencendo Ansiedade e Estresse', 
         fileName: 'ansiedade.pdf',
         description: 'Técnicas simples para superar a ansiedade e o estresse.'
     },
     { 
         id: 2, 
-        name: 'Vencendo a Depressão', 
-        fileName: 'depressao.pdf',
-        description: 'Você é o arquiteto da sua própria felicidade.'
-    },
-    { 
-        id: 3, 
         name: 'Você no Controle', 
         fileName: 'controle.pdf',
         description: 'Adeus ejaculação precoce. E-book completo.'
     },
     { 
-        id: 4, 
-        name: 'Superando la Ansiedad', 
-        fileName: 'ansiedad_es.pdf',
-        description: 'Versão em espanhol do nosso best-seller.'
-    },
-    { 
-        id: 5, 
-        name: 'Desafio 24 Dias', 
+        id: 3, 
+        name: 'Dieta 24 Dias', 
         fileName: 'desafio24.pdf',
         description: 'Emagreça em 24 dias com nosso método comprovado.'
     }
@@ -101,16 +89,6 @@ export default function EbooksPage() {
                         </div>
                     );
                 })}
-            </div>
-            
-            <div className="mt-12 p-6 bg-rose-50 rounded-xl border border-rose-100 text-center text-sm">
-                <p className="text-rose-800 font-medium mb-1">
-                    Como colocar os arquivos?
-                </p>
-                <p className="text-rose-700">
-                    Crie uma pasta chamada <strong className="font-mono bg-white px-1 rounded border border-rose-200">ebooks</strong> dentro da pasta <strong className="font-mono bg-white px-1 rounded border border-rose-200">public</strong> do seu projeto e coloque os arquivos lá com os nomes exatos:<br/>
-                    <span className="font-mono bg-white px-1 rounded mt-2 inline-block border border-rose-200">ansiedade.pdf</span>, <span className="font-mono bg-white px-1 rounded mt-2 inline-block border border-rose-200">depressao.pdf</span>, <span className="font-mono bg-white px-1 rounded mt-2 inline-block border border-rose-200">controle.pdf</span>, <span className="font-mono bg-white px-1 rounded mt-2 inline-block border border-rose-200">ansiedad_es.pdf</span>, <span className="font-mono bg-white px-1 rounded mt-2 inline-block border border-rose-200">desafio24.pdf</span>
-                </p>
             </div>
         </div>
     );

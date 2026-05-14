@@ -20,11 +20,9 @@ const PLANS = {
 };
 
 const UPSELL_PRODUCTS = [
-    { id: 1, name: 'Vencendo a Ansiedade', price: 990 },
-    { id: 2, name: 'Vencendo a Depressão', price: 990 },
-    { id: 3, name: 'Você no Controle', price: 990 },
-    { id: 4, name: 'Superando la Ansiedad', price: 990 },
-    { id: 5, name: 'Desafio 24 Dias', price: 1990 }
+    { id: 1, name: 'Vencendo Ansiedade e Estresse', price: 990 },
+    { id: 2, name: 'Você no Controle - Adeus Ejaculação Precoce', price: 990 },
+    { id: 3, name: 'Dieta 24 Dias', price: 990 }
 ];
 
 export default function Checkout() {
@@ -183,39 +181,45 @@ export default function Checkout() {
         return () => clearInterval(interval);
     }, [step, billingId, navigate, formData, plan, selectedUpsells]);
 
+    const currentTotalForm = PLANS[plan].price + selectedUpsells.reduce((acc, id) => {
+        const prod = UPSELL_PRODUCTS.find(p => p.id === id);
+        return acc + (prod ? prod.price : 0);
+    }, 0);
+    const formattedTotalForm = (currentTotalForm / 100).toFixed(2).replace('.', ',');
+
     return (
         <div className="min-h-screen bg-[#f0f2f5] font-sans text-gray-900 flex flex-col items-center justify-center py-12 px-4 relative">
 
-
             <div className="w-full max-w-lg relative z-0">
 
-                {/* Product Summary Card */}
-                <div className="bg-rose-50 rounded-xl border border-rose-200 overflow-hidden mb-4 shadow-sm">
-                    <div className="p-6">
-                        <h3 className="text-gray-900 font-bold text-lg mb-1">{PLANS[plan].name}</h3>
-                        <p className="text-rose-700 text-sm mb-4">Acesso vitalício à página do casal</p>
+                {step === 'form' ? (
+                    <>
+                        {/* Product Summary Card */}
+                        <div className="bg-rose-50 rounded-xl border border-rose-200 overflow-hidden mb-4 shadow-sm">
+                            <div className="p-6">
+                                <h3 className="text-gray-900 font-bold text-lg mb-1">{PLANS[plan].name}</h3>
+                                <p className="text-rose-700 text-sm mb-4">Acesso vitalício à página do casal</p>
 
-                        <div className="space-y-2 mb-6">
-                            {PLANS[plan].features.map((feat, i) => (
-                                <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
-                                    <Check className="h-4 w-4 text-rose-500" />
-                                    {feat}
+                                <div className="space-y-2 mb-6">
+                                    {PLANS[plan].features.map((feat, i) => (
+                                        <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                                            <Check className="h-4 w-4 text-rose-500" />
+                                            {feat}
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+
+                                <div className="flex justify-between items-center pt-4 border-t border-rose-200">
+                                    <span className="text-gray-500 text-sm">Você paga (Pagamento Único):</span>
+                                    <span className="text-2xl font-bold text-rose-700">R$ {(PLANS[plan].price / 100).toFixed(2).replace('.', ',')}</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex justify-between items-center pt-4 border-t border-rose-200">
-                            <span className="text-gray-500 text-sm">Você paga (Pagamento Único):</span>
-                            <span className="text-2xl font-bold text-rose-700">R$ {(PLANS[plan].price / 100).toFixed(2).replace('.', ',')}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Checkout Form Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="p-8">
-                        {step === 'form' ? (
-                            <form onSubmit={handleFormSubmit} className="space-y-5">
+                        {/* Checkout Form Card */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="p-8">
+                                <form onSubmit={handleFormSubmit} className="space-y-5">
                                 <div className="space-y-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo <span className="text-red-500">*</span></label>
@@ -266,12 +270,12 @@ export default function Checkout() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4 uppercase tracking-wide"
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4 tracking-wide"
                                 >
                                     {loading ? <Loader2 className="animate-spin h-5 w-5" /> : (
                                         <>
                                             <QrCode className="h-5 w-5" />
-                                            Gerar QR Code PIX
+                                            GERAR PIX: R$ {formattedTotalForm}
                                         </>
                                     )}
                                 </button>
@@ -314,23 +318,27 @@ export default function Checkout() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4 uppercase tracking-wide"
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4 tracking-wide"
                                 >
                                     {loading ? <Loader2 className="animate-spin h-5 w-5" /> : (
                                         <>
                                             <QrCode className="h-5 w-5" />
-                                            Gerar QR Code PIX
+                                            GERAR PIX: R$ {formattedTotalForm}
                                         </>
                                     )}
                                 </button>
                                 <p className="text-center text-xs text-gray-500 mt-3 font-medium flex justify-center items-center gap-1"><Lock className="w-3 h-3"/> Pagamento Seguro e Criptografado</p>
                             </form>
+                            </div>
+                        </div>
+                    </>
                         ) : step === 'upsell' ? (
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="p-8">
                             <div className="space-y-6 animate-in fade-in duration-500">
                                 <div className="text-center mb-6">
-                                    <span className="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">Espere!</span>
-                                    <h3 className="font-bold text-gray-900 text-2xl">Não feche essa página!</h3>
-                                    <p className="text-gray-600 text-sm mt-2">Adicione esses E-books exclusivos e potencialize ainda mais seu acesso. É a sua última chance de levar com esse desconto.</p>
+                                    <h3 className="font-bold text-gray-900 text-2xl">Aumente seus Resultados!</h3>
+                                    <p className="text-gray-600 text-sm mt-2">Adicione esses materiais exclusivos e potencialize ainda mais a sua experiência.</p>
                                 </div>
 
                                 <div className="space-y-3">
@@ -369,12 +377,12 @@ export default function Checkout() {
                                     <button
                                         onClick={() => createCharge()}
                                         disabled={loading}
-                                        className="w-full bg-green-500 hover:bg-green-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-all flex flex-col items-center justify-center gap-1"
+                                        className="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-all flex flex-col items-center justify-center gap-1"
                                     >
                                         {loading ? <Loader2 className="animate-spin h-6 w-6" /> : (
                                             <>
-                                                <span>SIM, QUERO ADICIONAR AO PEDIDO!</span>
-                                                <span className="text-xs font-medium opacity-90">Gerar PIX Atualizado: R$ {((PLANS[plan].price + selectedUpsells.reduce((acc, id) => acc + (UPSELL_PRODUCTS.find(p => p.id === id)?.price || 0), 0)) / 100).toFixed(2).replace('.', ',')}</span>
+                                                <span className="uppercase">SIM, ADICIONAR AO PEDIDO</span>
+                                                <span className="text-xs font-normal opacity-90">GERAR PIX: R$ {formattedTotalForm}</span>
                                             </>
                                         )}
                                     </button>
@@ -382,7 +390,7 @@ export default function Checkout() {
                                     <button
                                         onClick={handleDeclineUpsell}
                                         disabled={loading}
-                                        className="w-full text-gray-400 hover:text-gray-600 text-sm py-3 font-medium transition-colors underline"
+                                        className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-500 text-sm py-3 rounded-xl font-medium transition-colors underline shadow-sm"
                                     >
                                         Não, obrigado. Quero continuar apenas com o que já escolhi.
                                     </button>
