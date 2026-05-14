@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Settings, Heart, Gift, ExternalLink, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Settings, Heart, Gift, ExternalLink, X, Book } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -7,6 +7,7 @@ const navItems = [
     { name: 'Painel', href: '/app', icon: LayoutDashboard },
     { name: 'Configurar Surpresa', href: '/app/configurar', icon: Settings },
     { name: 'Gerar QR Code', href: '/app/exportar', icon: Gift },
+    { name: 'Bônus Extras', href: '/app/ebooks', icon: Book },
 ];
 
 interface SidebarProps {

@@ -10,6 +10,7 @@ import { AccessGuard } from './components/AccessGuard';
 
 // New Pages for Dia dos Namorados
 import PresenteView from './pages/presente/view';
+import EbooksPage from './pages/EbooksPage';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route index element={<DashboardHome />} />
             <Route path="configurar" element={<DashboardHome />} />
             <Route path="exportar" element={<DashboardHome />} />
+            <Route path="ebooks" element={<EbooksPage />} />
           </Route>
         </Route>
 

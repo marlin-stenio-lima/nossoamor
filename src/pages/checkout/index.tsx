@@ -150,13 +150,13 @@ export default function Checkout() {
                             email: formData.email,
                             name: formData.name,
                             phone: formData.cellphone,
-                            plan: plan,
+                            plan: finalPlanName,
                             status: 'active',
                             purchase_price: totalAmount / 100,
                             purchase_date: new Date().toISOString()
                         }, { onConflict: 'email' });
 
-                        const user = { email: formData.email, name: formData.name, plan: plan, role: 'user' };
+                        const user = { email: formData.email, name: formData.name, plan: finalPlanName, role: 'user' };
                         localStorage.setItem('enem_pro_user', JSON.stringify(user));
 
                         navigate('/thank-you', {
