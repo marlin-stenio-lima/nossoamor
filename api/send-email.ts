@@ -27,9 +27,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         const data = await resend.emails.send({
-            from: 'Gabas <onboarding@resend.dev>', // Default testing domain. User should verify their own domain later.
+            from: 'Nosso Amor <onboarding@resend.dev>', // Default testing domain. User should verify their own domain later.
             to: [email],
-            subject: 'Bem-vindo ao Gabas! 🚀',
+            subject: 'Pagamento Confirmado! Crie o seu presente 💖',
             html: `
                 <!DOCTYPE html>
                 <html>
@@ -57,7 +57,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             <p>Seu pagamento foi confirmado com sucesso e o seu acesso está totalmente liberado.</p>
                             <p>Agora você já pode criar o presente mais inesquecível de todos para o seu amor. Configure a data especial, escreva uma carta linda com ajuda da IA e gere o seu QR Code mágico!</p>
                             
-                            <a href="https://nossoamor.com/app" class="btn">COMEÇAR A CONFIGURAR AGORA</a>
+                            <a href="https://nossoamor-dia12.vercel.app/app" class="btn">COMEÇAR A CONFIGURAR AGORA</a>
                             
                             <p style="font-size: 14px; color: #888;">
                                 Qualquer dúvida, estamos aqui para ajudar a deixar o seu presente perfeito.<br>
