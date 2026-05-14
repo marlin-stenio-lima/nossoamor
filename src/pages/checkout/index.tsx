@@ -7,7 +7,7 @@ import { Pixel } from '../../utils/pixel';
 
 const PLANS = {
     start: {
-        price: 1390,
+        price: 990,
         name: 'Mural do Amor (Dia dos Namorados)',
         id: 'start',
         features: [
