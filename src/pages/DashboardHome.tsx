@@ -212,7 +212,7 @@ export default function DashboardHome() {
                 meet_location: meetLocation
             };
 
-            let saveError = null;
+            let saveError: any = null;
 
             if (user?.email) {
                 // Check if record exists for this email
@@ -264,7 +264,7 @@ export default function DashboardHome() {
 
     const handleDownloadQR = () => {
         // Works on mobile: convert SVG to canvas then download as PNG
-        const svg = document.getElementById('qr-code-svg') as SVGSVGElement;
+        const svg = document.getElementById('qr-code-svg') as unknown as SVGSVGElement;
         if (!svg) return;
 
         const svgData = new XMLSerializer().serializeToString(svg);
